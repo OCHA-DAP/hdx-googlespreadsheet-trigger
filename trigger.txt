@@ -39,23 +39,6 @@ function httpRequest(server_type, apikey, action, payload)
   return null;
 }
 
-function today() {
-  var today = new Date();
-  var dd = today.getDate();
-  var mm = today.getMonth() + 1; //January is 0!
-  var yyyy = today.getFullYear();
-
-  if (dd < 10) {
-    dd = '0' + dd
-  }
-
-  if (mm < 10) {
-    mm = '0' + mm
-  }
-
-  return mm + '/' + dd + '/' + yyyy;
-}
-
 function updateResourceDate(server_type, apikey, resource_id) {
   var resource = httpRequest(server_type, apikey, "resource_show", resource_id);
   if(resource) {
