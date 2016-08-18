@@ -1,0 +1,71 @@
+var resource_id = "bfa6b55f-10b6-4ba2-8470-33bb9a5194a5"
+var api_key = "xxx"
+var server_type = "PROD"
+
+function httpRequest(server_type, apikey, action, payload)
+{
+  if (server_type == "PROD") {
+    var server = "https://data.humdata.org";
+  } else if (server_type == "FEATURE") {
+    var server = "https://feature-data.humdata.org";
+  } else if (server_type == "DEMO") {
+    var server = "https://demo-data.humdata.org";
+  } else {
+    var server = "https://test-data.humdata.org";
+  }
+  var url = server + "/api/3/action/" + action;
+
+  var headers = {
+    "X-CKAN-API-Key": apikey,
+    "Authorization": "Basic ZGF0YXByb2plY3Q6aHVtZGF0YQ=="
+  };
+  if (typeof payload == "string") {
+    var payload = {
+      "id": payload
+    };
+  }
+  var params = {
+    "method"  : "POST",
+    "contentType": "application/json",
+    "headers": headers,
+    "payload" : JSON.stringify(payload)
+  };
+  var result = UrlFetchApp.fetch(url, params);
+  if (result.getResponseCode() == 200) {
+    var obj = JSON.parse(result.getContentText());
+    if (obj.success)
+      return obj.result;
+  }
+  return null;
+}
+
+function today() {
+  var today = new Date();
+  var dd = today.getDate();
+  var mm = today.getMonth() + 1; //January is 0!
+  var yyyy = today.getFullYear();
+
+  if (dd < 10) {
+    dd = '0' + dd
+  }
+
+  if (mm < 10) {
+    mm = '0' + mm
+  }
+
+  return mm + '/' + dd + '/' + yyyy;
+}
+
+function updateResourceDate(server_type, apikey, resource_id) {
+  var resource = httpRequest(server_type, apikey, "resource_show", resource_id);
+  if(resource) {
+    var result = httpRequest(server_type, apikey, "resource_patch", resource_id);
+  }
+}
+
+function doOnEdit() {
+  Logger.log("Running Installable Trigger that detects edits!");
+  updateResourceDate(server_type, api_key, resource_id);
+  Logger.log("Trigger Completed!");
+}
+
